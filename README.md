@@ -19,3 +19,7 @@ This application is fully containerized. You do not need to install Python, Node
    ```bash
    docker compose up -d --build
 4. Open your browser and navigate to the frontend client at: http://localhost:5173
+
+### AI Assistance Disclosure
+* **Infrastructure & Boilerplate:** Used to generate the initial SQLAlchemy ORM configurations in `models.py` and database session management in `database.py`.
+* **Frontend Styling:** Assisted in the implementation of responsive UI components using Tailwind CSS classes.
