@@ -82,4 +82,24 @@ async def video_stream(websocket: WebSocket):
             await websocket.send_text(json.dumps(response))
             
     except WebSocketDisconnect:
-        print("Frontend disconnected.")
+        print("Frontend disconnected")
+
+@app.get("/api/roi")
+def get_historical_roi(limit:int=50):
+    """
+    Serves historical ROI data from the database
+    returns the most recent coordinates detected by the system
+    """
+    db=SessionLocal()
+    try:
+        #most recent logs 
+        logs=db.query(roilog).order_by(roilog.id.desc()).limit(limit).all()
+        return {
+            "status":"success",
+            "count":len(logs),
+            "data":logs
+        }
+    except Exception as e:
+        return {"status":"error","message":str(e)}
+    finally:
+        db.close()
