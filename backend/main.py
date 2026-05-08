@@ -7,9 +7,12 @@ from PIL import Image
 import mediapipe as mp
 import json
 import base64
+from database import SessionLocal,init_db
+from models import roilog
 
 app=FastAPI(title="Face Detection API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"], )
+init_db() #initialize the database tables
 
 #initialize MediaPipe AI
 mp_face_detection=mp.solutions.face_detection
@@ -42,6 +45,21 @@ async def video_stream(websocket: WebSocket):
                     x2=min(w,int((box.xmin+box.width)*w))
                     y2=min(h,int((box.ymin+box.height)*h))
                     roi_data={"x1":x1,"y1":y1,"x2":x2,"y2":y2}
+                    #saving to the database
+                    db=SessionLocal()
+                    try:
+                        new_log=roilog(
+                            x1=roi_data["x1"], 
+                            y1=roi_data["y1"], 
+                            x2=roi_data["x2"], 
+                            y2=roi_data["y2"]
+                        )
+                        db.add(new_log)
+                        db.commit()
+                    except Exception as e:
+                        print(f"Database error: {e}")
+                    finally:
+                        db.close()
                     #Drawing
                     thickness=3
                     color=[0,255,0] #green
